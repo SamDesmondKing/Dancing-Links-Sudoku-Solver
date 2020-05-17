@@ -47,7 +47,7 @@ public class StdSudokuGrid extends SudokuGrid {
 			// First two lines of file store valid values.
 			this.gridSize = Integer.parseInt(inputReader.nextLine());
 			String valueString = inputReader.nextLine();
-			
+
 			// Convert valid values into int array.
 			String[] splitValues = valueString.split(" ");
 			this.values = new int[splitValues.length];
@@ -123,74 +123,77 @@ public class StdSudokuGrid extends SudokuGrid {
 
 		// Get expected row and box sizes.
 		int rowSize = this.values.length;
-		int numBoxes = rowSize;
-		int boxSize = (int) Math.sqrt((double) rowSize);
+		int boxWidth = (int) Math.sqrt((double) rowSize);
 
-		//Validate all boxes in grid are correct
-		validateBoxes(0, 0, boxSize);
-		
-		//Validate all rows are correct
-		
-		//Validate all columns are correct
+		// Validate all boxes in grid are correct
+		validateBoxes(0, 0, boxWidth);
+
+		// Validate all rows & columns are correct
+		for (int i = 0; i < rowSize; i++) {
+			Integer[] row = new Integer[rowSize];
+			Integer[] column = new Integer[rowSize];
+			for (int j = 0; j < rowSize; j++) {
+				row[j] = this.grid[i][j];
+				column[j] = this.grid[j][i];
+			}
+		}
 
 		return this.validity;
 	} // end of validate()
 
-	public void validateBoxes(int coord1, int coord2, int boxSize) {
+	public void validateBoxes(int coord1, int coord2, int boxWidth) {
 
-		int numBoxes = boxSize * boxSize;
+		int numBoxes = boxWidth * boxWidth;
 		Integer[] boxValues = new Integer[numBoxes];
 
 		// Stopping condition
 		if (coord2 == numBoxes || this.validity == false) {
-			//terminate quietly.
+			// terminate quietly.
 		} else {
 			// Get all box values.
 			int k = 0;
-			for (int i = coord1; i < coord1 + boxSize; i++) {
-				for (int j = coord2; j < coord2 + boxSize; j++) {
+			for (int i = coord1; i < coord1 + boxWidth; i++) {
+				for (int j = coord2; j < coord2 + boxWidth; j++) {
 					boxValues[k] = this.grid[i][j];
 					k++;
 				}
 			}
-			//Validate
-			this.validity = this.validateRow(boxValues);
+			// Validate
+			this.validateSet(boxValues);
 			// Adjust starting co-ordinates for next validation.
-			if (coord1 == numBoxes - boxSize) {
+			if (coord1 == numBoxes - boxWidth) {
 				coord1 = 0;
-				coord2 += boxSize;
+				coord2 += boxWidth;
 			} else {
-				coord1 += boxSize;
+				coord1 += boxWidth;
 			}
 			// Recur.
-			validateBoxes(coord1, coord2, boxSize);
+			validateBoxes(coord1, coord2, boxWidth);
 		}
-	}
-	
-	public boolean validateRow(Integer[] row) {
-		
-		//Check row is correct length
-		if (this.values.length != row.length) {
-			return false;
-		}
-		
-		//Copy Integer array to hashset to check for duplicate values.
-		HashSet<Integer> hash =  new HashSet<Integer>(Arrays.asList(row)); 
-		if (hash.size() != row.length) {
-			return false;
-		}
-		
-		//Use hashset to check that each value in this.values appears. 
-		for (int i = 0; i < this.values.length; i++) {
-			if (!hash.contains(this.values[i])) {
-				return false;
-			}
-		}
-		
-		//These two checks determine if a row of sudoku ints is valid (no duplicates, same length, all values appear).
-		return true;
-		
 	}
 
+	public void validateSet(Integer[] row) {
+
+		// These three checks determine if a set of sudoku ints is valid (no duplicates,
+		// right length, all values appear).
+
+		// Check row is correct length
+		if (this.values.length != row.length) {
+			this.validity = false;
+		}
+
+		// Copy Integer array to hashset to check for duplicate values.
+		HashSet<Integer> hash = new HashSet<Integer>(Arrays.asList(row));
+		if (hash.size() != row.length) {
+			this.validity = false;
+		}
+
+		// Use hashset to check that each value in this.values appears.
+		for (int i = 0; i < this.values.length; i++) {
+			if (!hash.contains(this.values[i])) {
+				this.validity = false;
+			}
+		}
+	}
 
 } // end of class StdSudokuGrid
