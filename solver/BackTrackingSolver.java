@@ -61,29 +61,41 @@ public class BackTrackingSolver extends StdSudokuSolver {
 		 * sudokuSolver(lastSuccessfulCellIndex); }
 		 */
 
-		for (int i = 0; i < this.gridSize; i++) {
-			for (int j = 0; j < this.gridSize; j++) {
-				if (this.grid.getCoord(i,j) == 0) {
-					for (int k = 1; k <= this.values.size(); k++) {
-						if (this.grid.validCell(i, j, this.values.get(k-1))) {
+		this.recursiveSolver();
 
-							if (this.solve(this.grid)) {
+		return true;
+	} // end of solve()
+
+	public boolean recursiveSolver() {
+
+		// For each row
+		for (int i = 0; i < this.gridSize; i++) {
+			// For each column
+			for (int j = 0; j < this.gridSize; j++) {
+				// If square is unassigned (0)
+				if (this.grid.getCoord(i, j) == 0) {
+					// Check every possible value
+					for (int k = 0; k < this.values.size(); k++) {
+						// If a value is valid
+						if (this.grid.validCell(i, j, this.values.get(k))) {
+							this.grid.setCoord(this.values.get(k), i, j);
+							// Recursive call in an if statement to allow us to backtrack up through it.
+							// If any future recursion returns false it will be caught here.
+							if (this.recursiveSolver()) {
+								// If this method returns true, recursion is complete.
 								return true;
 							} else {
-								this.grid.setCoord(i,j,0);
+								// Bad value found, reset and try a new value.
+								this.grid.setCoord(0, i, j);
 							}
-							
-						}
+						} 
 					}
+					// No available value - backtrack.
 					return false;
 				}
 			}
 		}
 		return true;
-	} // end of solve()
-
-	public void solveNext(int coord1, int coord2, int valueIndex) {
-
 	}
 
 } // end of class BackTrackingSolver()
