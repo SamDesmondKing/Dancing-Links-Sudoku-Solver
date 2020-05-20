@@ -4,7 +4,7 @@
 package grid;
 
 import java.io.*;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
@@ -18,10 +18,11 @@ import java.util.Scanner;
  * your implementation).
  */
 public class StdSudokuGrid extends SudokuGrid {
-	// TODO: Add your own attributes
+
 	private int[][] grid;
+
 	private int gridSize;
-	private int[] values;
+	private ArrayList<Integer> values;
 	private boolean validity;
 
 	public StdSudokuGrid() {
@@ -50,9 +51,9 @@ public class StdSudokuGrid extends SudokuGrid {
 
 			// Convert valid values into int array.
 			String[] splitValues = valueString.split(" ");
-			this.values = new int[splitValues.length];
-			for (int i = 0; i < values.length; i++) {
-				this.values[i] = Integer.parseInt(splitValues[i]);
+			this.values = new ArrayList<Integer>();
+			for (int i = 0; i < splitValues.length; i++) {
+				this.values.add(Integer.parseInt(splitValues[i]));
 			}
 
 			// Initialise grid with blank values
@@ -121,8 +122,10 @@ public class StdSudokuGrid extends SudokuGrid {
 	@Override
 	public boolean validate() {
 
+		this.validity = true;
+		
 		// Get expected row and box sizes.
-		int rowSize = this.values.length;
+		int rowSize = this.values.size();
 		int boxWidth = (int) Math.sqrt((double) rowSize);
 
 		// Validate all boxes in grid are correct
@@ -136,6 +139,8 @@ public class StdSudokuGrid extends SudokuGrid {
 				row[j] = this.grid[i][j];
 				column[j] = this.grid[j][i];
 			}
+			this.validateSet(row);
+			this.validateSet(column);
 		}
 
 		return this.validity;
@@ -159,6 +164,7 @@ public class StdSudokuGrid extends SudokuGrid {
 				}
 			}
 			// Validate
+			//TODO Here
 			this.validateSet(boxValues);
 			// Adjust starting co-ordinates for next validation.
 			if (coord1 == numBoxes - boxWidth) {
@@ -174,26 +180,43 @@ public class StdSudokuGrid extends SudokuGrid {
 
 	public void validateSet(Integer[] row) {
 
-		// These three checks determine if a set of sudoku ints is valid (no duplicates,
-		// right length, all values appear).
-
-		// Check row is correct length
-		if (this.values.length != row.length) {
-			this.validity = false;
-		}
-
-		// Copy Integer array to hashset to check for duplicate values.
-		HashSet<Integer> hash = new HashSet<Integer>(Arrays.asList(row));
-		if (hash.size() != row.length) {
-			this.validity = false;
-		}
-
-		// Use hashset to check that each value in this.values appears.
-		for (int i = 0; i < this.values.length; i++) {
-			if (!hash.contains(this.values[i])) {
-				this.validity = false;
+		//Determine if a set is valid (no duplicates)
+		
+		//Convert row to Arraylist - exclude '0' value
+		ArrayList<Integer> rowList = new ArrayList<Integer>();
+		for (int i = 0; i < row.length; i++) {
+			if (row[i] != 0) {
+				rowList.add(row[i]);
 			}
 		}
+		
+		//Convert ArrayList to hashset to check for duplicates. 
+		int rowListLength = rowList.size(); 
+		HashSet<Integer> hash = new HashSet<Integer>(rowList);
+		if (hash.size() != rowListLength) {
+			this.validity = false;
+		}
+	}
+	
+
+	public void setCoord(int value, int coord1, int coord2) {
+		this.grid[coord1][coord2] = value;
+	}
+	
+	public int getCoord(int coord1, int coord2) {
+		return this.grid[coord1][coord2];
+	}
+	
+	public int getGridSize() {
+		return this.gridSize;
+	}
+	
+	public ArrayList<Integer> getValues() {
+		return this.values;
+	}
+	
+	public boolean getValidity() {
+		return this.validity;
 	}
 
 } // end of class StdSudokuGrid
