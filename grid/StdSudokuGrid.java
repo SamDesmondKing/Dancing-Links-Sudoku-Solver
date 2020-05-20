@@ -118,6 +118,21 @@ public class StdSudokuGrid extends SudokuGrid {
 		}
 		return returnString;
 	} // end of toString()
+	
+	//Check if a given value is valid at a given co-ordinate
+	//If false, value at that co-ordinate is reverted to original. 
+	public boolean validCell(int coord1, int coord2, int value) {
+		
+		int currentValue = this.getCoord(coord1, coord2);
+		this.setCoord(value, coord1, coord2);
+		
+		if (this.validate()) {
+			return true;
+		} else {
+			this.setCoord(currentValue, coord1, coord2);
+			return false;
+		}
+	}
 
 	@Override
 	public boolean validate() {

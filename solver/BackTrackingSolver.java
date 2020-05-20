@@ -23,13 +23,15 @@ public class BackTrackingSolver extends StdSudokuSolver {
 
 	boolean[] visited;
 	int count;
-	
+
 	int[] lastSuccessfulCell;
+	int cellIndex;
 
 	public BackTrackingSolver() {
 
 		this.valueIndex = 0;
 		this.complete = false;
+		this.cellIndex = 0;
 
 	} // end of BackTrackingSolver()
 
@@ -42,69 +44,46 @@ public class BackTrackingSolver extends StdSudokuSolver {
 		this.values = this.grid.getValues();
 		this.numCells = this.gridSize * this.gridSize;
 
-		//Holds last successfull co-ordinate, and the index of the value placed there.
-		//TODO right now this will only go back up one level. Needs to be able to go all the way.
+		// Holds last successfull co-ordinate, and the index of the value placed there.
 		this.lastSuccessfulCell = new int[] { 0, 0, 0 };
+		// this.solveNext(0,0,0);
 
-		//this.solveNext(0,0,0);
-		
-//		while (!complete) {
-//			System.out.println(this.lastSuccessfulCell[0] + " " + this.lastSuccessfulCell[1] + " " + this.lastSuccessfulCell[2]);
-//			solveNext(this.lastSuccessfulCell[0], this.lastSuccessfulCell[1], this.lastSuccessfulCell[2]);
-//		}
-		
-		solveNext(this.lastSuccessfulCell[0], this.lastSuccessfulCell[1], this.lastSuccessfulCell[2]);
-		
-		// placeholder
-		return false;
+		// TODO we need to enumerate the co-ordinates of every blank cell to visit, then
+		// go through those co-ordinates one by one
+		// Instead of only changing blank co-ordinates in solveNext().
+
+		/*
+		 * global var lastSuccessfulCellIndex[][]
+		 * 
+		 * sudokuSolver(cell) { if (isCellValid(cell)) { lasSuccessfulCellIndex = cell
+		 * foreach (cell c : cellsRemaining) { sudokuSolver(c); } } else {
+		 * 
+		 * sudokuSolver(lastSuccessfulCellIndex); }
+		 */
+
+		for (int i = 0; i < this.gridSize; i++) {
+			for (int j = 0; j < this.gridSize; j++) {
+				if (this.grid.getCoord(i,j) == 0) {
+					for (int k = 1; k <= this.values.size(); k++) {
+						if (this.grid.validCell(i, j, this.values.get(k-1))) {
+
+							if (this.solve(this.grid)) {
+								return true;
+							} else {
+								this.grid.setCoord(i,j,0);
+							}
+							
+						}
+					}
+					return false;
+				}
+			}
+		}
+		return true;
 	} // end of solve()
 
 	public void solveNext(int coord1, int coord2, int valueIndex) {
-		
-		if (coord1 == this.gridSize) {
-			this.complete = true;
-			return;
-		}
-		
-		while (valueIndex < this.values.size()) {
-			
-			//If cell is blank, set to value(i)
-			if (this.grid.getCoord(coord1, coord2) == 0) {
-				this.grid.setCoord(this.values.get(valueIndex), coord1, coord2);
-				
-				//Validate grid
-				this.grid.validate();
-				
-				//If grid is valid, save as last successful cell and break. 
-				if (this.grid.getValidity()) {
-					this.lastSuccessfulCell[0] = coord1;
-					this.lastSuccessfulCell[1] = coord2;
-					this.lastSuccessfulCell[2] = valueIndex;
-					break;
-				} else {
-					//If invalid, reset cell to 0.
-					this.grid.setCoord(0, coord1, coord2);
-				}
-			}
-			valueIndex++;
-		}
-		
-		//If the cell is still blank, break to last successfull coordinate and try next value.
-		if (this.grid.getCoord(coord1, coord2) == 0) {
-			return;
-			//solveNext(this.lastSuccessfulCell[0], this.lastSuccessfulCell[1], this.lastSuccessfulCell[2]);
-			//System.out.println(this.lastSuccessfulCell[0] + " "+ this.lastSuccessfulCell[1] + " " + this.lastSuccessfulCell[2]);
-		}
-		
-		//Else, determine next linear coordinate
-		if (coord2 == this.gridSize - 1) {
-			coord1++;
-			coord2 = 0;
-		} else {
-			coord2++;
-		}
-		solveNext(coord1, coord2, 0);
+
 	}
-	
 
 } // end of class BackTrackingSolver()
