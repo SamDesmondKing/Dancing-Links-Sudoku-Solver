@@ -46,12 +46,12 @@ public class BackTrackingSolver extends StdSudokuSolver {
 					// Check every possible value
 					for (int k = 0; k < this.values.size(); k++) {
 						// If a value is valid
-						if (this.grid.validCell(i, j, this.values.get(k))) {
+						if (this.grid.isValidCell(i, j, this.values.get(k))) {
 							this.grid.setCoord(this.values.get(k), i, j);
 							// Recursive call in an if statement to allow us to backtrack up through it.
 							// If any future recursion returns false it will be caught here.
 							if (this.recursiveSolver()) {
-								// If this method returns true, recursion is complete.
+								// If this method returns true, grid is complete.
 								return true;
 							} else {
 								// Bad value found, reset and try a new value.
@@ -64,7 +64,7 @@ public class BackTrackingSolver extends StdSudokuSolver {
 				}
 			}
 		}
+		//End of grid reached. 
 		return true;
 	}
-
 } // end of class BackTrackingSolver()

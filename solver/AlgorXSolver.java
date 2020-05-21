@@ -3,6 +3,9 @@
  */
 package solver;
 
+import java.util.ArrayList;
+
+import grid.StdSudokuGrid;
 import grid.SudokuGrid;
 
 
@@ -11,16 +14,23 @@ import grid.SudokuGrid;
  */
 public class AlgorXSolver extends StdSudokuSolver
 {
-    // TODO: Add attributes as needed.
+	
+	private StdSudokuGrid grid;
+	private ArrayList<Integer> values;
+	private int gridSize;
 
     public AlgorXSolver() {
-        // TODO: any initialisation you want to implement.
+       
     } // end of AlgorXSolver()
 
 
     @Override
     public boolean solve(SudokuGrid grid) {
-        // TODO: your implementation of the Algorithm X solver for standard Sudoku.
+        
+    	this.grid = (StdSudokuGrid) grid;
+		this.gridSize = this.grid.getGridSize();
+		this.values = this.grid.getValues();
+    	
 
         // placeholder
         return false;
