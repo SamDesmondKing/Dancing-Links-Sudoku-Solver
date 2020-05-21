@@ -175,6 +175,12 @@ public class KillerSudokuGrid extends SudokuGrid {
 		 * rows and columns and then validate only cages which have been filled completely.
 		*/
 		
+		int cageValue;
+		int cageSize;
+		int[] cageBoxCoord = new int[2];
+		int index = 0;
+		boolean fullCage;
+		
 		//Reset Global validity (used in box/row/column tests)
 		this.validity = true;
 		//Local validity used for our specific cage checks.
@@ -188,11 +194,6 @@ public class KillerSudokuGrid extends SudokuGrid {
 		int currentValue = this.getCoord(coord1, coord2);
 		//Place new value
 		this.setCoord(newValue, coord1, coord2);
-		
-		//TODO Get all completely filled cages
-		
-		
-
 
 		// Validate all boxes in grid are correct
 		validateBoxes(0, 0, boxWidth);
@@ -208,7 +209,41 @@ public class KillerSudokuGrid extends SudokuGrid {
 			this.validateSet(row);
 			this.validateSet(column);
 		}
-
+		
+		//Check all completely filled cages
+		for (ArrayList<Integer> cage : cages.keySet()) {		
+			cageValue = cages.get(cage);
+			cageSize = cage.size() / 2;
+			fullCage = true;
+			int cageRunningTotal = 0;
+			index = 0;
+		
+			//Cycle each individual cage box;
+			//Also save running total value for validation.
+			for (int i = 0; i < cageSize; i++) {
+				cageBoxCoord[0] = cage.get(index);
+				index ++;
+				cageBoxCoord[1] = cage.get(index);
+				index ++;			
+				cageRunningTotal += this.grid[cageBoxCoord[0]][cageBoxCoord[1]];
+				
+				//If the value at any of the cage's co-ordinates is 0, the cage is not full.
+				if (this.grid[cageBoxCoord[0]][cageBoxCoord[1]] == 0) {
+					fullCage = false;
+				}
+			}		
+			
+			//If the cage is full, validate it.
+			//System.out.println(fullCage);
+			if (fullCage == true) {
+				//System.out.println(fullCage);
+				if (cageRunningTotal != cageValue) {
+					
+					cellValidity = false;
+				}
+			}
+		}
+		
 		//Reset cell to original value and return result. 
 		if (cellValidity && this.validity) {
 			this.setCoord(currentValue, coord1, coord2);
@@ -283,6 +318,7 @@ public class KillerSudokuGrid extends SudokuGrid {
 			cageValue = cages.get(cage);
 			cageSize = cage.size() / 2;
 			cageRunningTotal = 0;
+			index = 0;
 			
 			//Get co-ordinates for individual cage box;
 			//Add value to running total for this cage.
@@ -290,12 +326,9 @@ public class KillerSudokuGrid extends SudokuGrid {
 				cageBoxCoord[0] = cage.get(index);
 				index ++;
 				cageBoxCoord[1] = cage.get(index);
-				index = 0;
+				index ++;
 				cageRunningTotal += this.grid[cageBoxCoord[0]][cageBoxCoord[1]];
 			}
-			
-			//TODO testing.
-			//System.out.println("Cage value: " + cageValue + " Running total: " + cageRunningTotal);
 			
 			//Validate cage
 			if (cageValue != cageRunningTotal) {
