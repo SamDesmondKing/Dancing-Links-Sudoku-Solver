@@ -172,6 +172,7 @@ public class StdSudokuGrid extends SudokuGrid {
 		if (coord2 == numBoxes || this.validity == false) {
 			// terminate quietly.
 		} else {
+			//System.out.println(coord1 + " " + coord2);
 			// Get all box values.
 			int k = 0;
 			for (int i = coord1; i < coord1 + boxWidth; i++) {
@@ -191,6 +192,7 @@ public class StdSudokuGrid extends SudokuGrid {
 				coord1 += boxWidth;
 			}
 			// Recur.
+			
 			validateBoxes(coord1, coord2, boxWidth);
 		}
 	}
