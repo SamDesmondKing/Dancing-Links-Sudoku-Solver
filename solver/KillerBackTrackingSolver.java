@@ -37,6 +37,13 @@ public class KillerBackTrackingSolver extends KillerSudokuSolver
 
 	public boolean recursiveSolver() {
 		
+		/*
+		 * Solution is exactly the same as that used for solving  
+		 * standard sudoku - only difference is in the validation
+		 * methods used in the KillerSudokuGrid class - which are 
+		 * called here by this.grid.isValidCell().
+		 */
+		
 		// For each row
 		for (int i = 0; i < this.gridSize; i++) {
 			// For each column
@@ -46,9 +53,7 @@ public class KillerBackTrackingSolver extends KillerSudokuSolver
 					// Check every possible value
 					for (int k = 0; k < this.values.size(); k++) {
 						// If a value is valid	
-						//System.out.println(i + " " + j + " " + this.values.get(k));
 						if (this.grid.isValidCell(i, j, this.values.get(k))) {
-							
 							this.grid.setCoord(this.values.get(k), i, j);
 							// Recursive call in an if statement to allow us to backtrack up through it.
 							// If any future recursion returns false it will be caught here.

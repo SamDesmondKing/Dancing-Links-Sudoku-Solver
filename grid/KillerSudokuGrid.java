@@ -7,7 +7,6 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
@@ -26,7 +25,6 @@ public class KillerSudokuGrid extends SudokuGrid {
 	private HashMap<ArrayList<Integer>, Integer> cages;
 
 	private int gridSize;
-	private int numCages;
 	private ArrayList<Integer> values;
 	private boolean validity;
 
@@ -60,8 +58,9 @@ public class KillerSudokuGrid extends SudokuGrid {
 				this.values.add(Integer.parseInt(splitValues[i]));
 			}
 
-			// Save number of cages from following line
-			this.numCages = Integer.parseInt(inputReader.nextLine());
+			// Read number of cages from following line 
+			// value is not used in this implimentation, however.
+			inputReader.nextLine();
 
 			// Add cages to hashmap
 			while (inputReader.hasNextLine()) {
@@ -166,8 +165,6 @@ public class KillerSudokuGrid extends SudokuGrid {
 		return this.validity;
 	} // end of validate()
 	
-	//Check if a given value would be valid if placed at a given co-ordinate
-	//Does not actually change the state of the grid. 
 	public boolean isValidCell(int coord1, int coord2, int newValue) {
 		
 		/*This method differs from that in stdSudoku because we can't just run validate()
@@ -238,7 +235,6 @@ public class KillerSudokuGrid extends SudokuGrid {
 			if (fullCage == true) {
 				//System.out.println(fullCage);
 				if (cageRunningTotal != cageValue) {
-					
 					cellValidity = false;
 				}
 			}
