@@ -62,25 +62,74 @@ public class AlgorXSolver extends StdSudokuSolver {
 		matrixStartingIndex += numCells;
 		columnConstraints(matrixStartingIndex);
 
-		// Add box constraints to binary matrix
+		// Add box constraints to binary matrix.
 		matrixStartingIndex += numCells;
 		int boxWidth = (int) Math.sqrt(gridSize);
 		this.boxConstraints(0, 0, boxWidth, 0, matrixStartingIndex);
+		
+		//Map row/col/num keys to each row so we can build solution.
 
+		
+		this.mapKeys();
+		
 		// Print Matrix for testing
+		int count = 0;
 		StringBuilder builder = new StringBuilder("");
-		for (int i = 0; i < matrixRows; i++) {
-			for (int j = 0; j < matrixCols; j++) {
+		for (int i = 0; i < this.binaryMatrix.size(); i++) {			
+			for (int j = 0; j < this.binaryMatrix.get(i).size(); j++) {
 				builder.append(binaryMatrix.get(i).get(j) + " ");
 			}
 			builder.append("\n");
 		}
 		System.out.println(builder);
+		System.out.println(count);
 
 		// placeholder
 		return false;
 	} // end of solve()
 
+	
+	public void mapKeys() {
+		
+		int column = 1;
+		int row = 1;
+		int value = 1;
+		String key;
+		
+		int columnCount = 1;
+		int rowCount = 0;
+		int totalCount = 1;
+		
+		for (int i = 0; i < this.binaryMatrix.size(); i++) {
+			
+			//Keep track of row
+			if (rowCount == gridSize * gridSize) {
+				row++;
+				rowCount = 0;
+			}
+			//Keep track of column
+			if (columnCount > gridSize) {
+				column++;
+				columnCount = 1;
+				if (column > gridSize) { 
+					column = 1;
+				}
+			}
+			//Keep track of value
+			if (value > gridSize) {
+				value = 1;
+			}
+
+			key = Integer.toString(row) + "," + Integer.toString(column) + "," + Integer.toString(value);
+			
+			this.binaryMatrix.get(i).add(0,key);
+			
+			value++;
+			columnCount++;
+			rowCount++;
+		}
+	}
+	
 	/*
 	 * Fills matrix with appropriate column constraints
 	 */
@@ -192,6 +241,13 @@ public class AlgorXSolver extends StdSudokuSolver {
 	 */
 	public int getMatrixIndex(int coord1, int coord2, int value) {
 		return (coord1) * gridSize * gridSize + (coord2) * gridSize + (value);
+	}
+	
+	public int[] getSudokuIndex(int matrixIndex) {
+		
+		int[] coords = new int[3];
+		
+		return coords;
 	}
 
 } // end of class AlgorXSolver
