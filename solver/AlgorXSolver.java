@@ -5,7 +5,6 @@ package solver;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 
 import grid.StdSudokuGrid;
 import grid.SudokuGrid;
@@ -21,12 +20,12 @@ public class AlgorXSolver extends StdSudokuSolver {
 	private int matrixRows;
 	private int matrixCols;
 	private int numCells;
-	private boolean solutionFound = false;
+	private boolean solutionFound;
 
 	private ArrayList<ArrayList<String>> binaryMatrix;
 
 	public AlgorXSolver() {
-
+		this.solutionFound = false;
 	} // end of AlgorXSolver()
 
 	@Override
@@ -84,18 +83,23 @@ public class AlgorXSolver extends StdSudokuSolver {
 		}
 		System.out.println(builder);
 		
+		//TODO remove rows that are already solved from binary matrix. 
 		
 		// Execute algorithm X.
 		ArrayList<String> solution = new ArrayList<String>();
 		this.algX(this.binaryMatrix,solution);
 
 
-
-		// placeholder
-		return false;
+		return this.solutionFound;
 	} // end of solve()
 
 	public void algX(ArrayList<ArrayList<String>> matrix, ArrayList<String> solution) {
+		
+		//TODO Can't seem to try all options when backtracking.
+		// notice 1,1,9 is only tried once in the 9x9 attempt. 
+		// logic error somewhere. 
+		// Could try adding partial solution and seeing if 4x4 demonstrates
+		// bug a bit clearer when trying to solve. 
 
 		// If the matrix A has no rows, the current partial solution
 		// is a valid solution; terminate successfully.
@@ -112,7 +116,6 @@ public class AlgorXSolver extends StdSudokuSolver {
 			ArrayList<Integer> rowIndexToRemove = new ArrayList<Integer>();
 
 			for (int r = 0; r < matrix.size(); r++) {
-				//System.out.println("choose a row");
 				// Choose a row r such that A[r] = 1 (nondeterministically).
 				if (matrix.get(r).get(columnChoice).equals("1")) {
 					// Include row r in the partial solution (key is located at index 0).
@@ -138,10 +141,9 @@ public class AlgorXSolver extends StdSudokuSolver {
 					}
 					
 					Collections.sort(colIndexToRemove, Collections.reverseOrder());
-					System.out.println("Columns: " + colIndexToRemove);
-					System.out.println("Rows: " + rowIndexToRemove);
+					//System.out.println("Columns: " + colIndexToRemove);
+					//System.out.println("Rows: " + rowIndexToRemove);
 					
-
 					//Create new matrix here minus specified rows
 					ArrayList<ArrayList<String>> matrixCopy = new ArrayList<ArrayList<String>>();
 					for (int i = 0; i < matrix.size(); i++) {
@@ -165,13 +167,18 @@ public class AlgorXSolver extends StdSudokuSolver {
 						}
 						builder.append("\n");
 					}
-					System.out.println(builder);
+					//System.out.println(builder);
+					
+					System.out.println(solution.size());
+					System.out.println(solution);
 					
 					//Reccur
 					algX(matrixCopy, solution);
-					
+
 					if (this.solutionFound == true) {
-						//break;
+						break;
+					} else {
+						solution.remove(solution.size() - 1);
 					}
 				}
 			}
@@ -179,13 +186,11 @@ public class AlgorXSolver extends StdSudokuSolver {
 	}
 	
 	public void solutionFound(ArrayList<String> solution) {
-		System.out.println("Solution found");
 		this.solutionFound = true;
 		
-		//Repopulate grid here
+		//TODO Repopulate grid here
 		
-		System.out.println(solution);
-		
+		System.out.println(solution);	
 	}
 	
 	public ArrayList<ArrayList<String>> twoDArrayListCopy(ArrayList<ArrayList<String>> arrayToCopy) {
