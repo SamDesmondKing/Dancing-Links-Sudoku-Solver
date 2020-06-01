@@ -81,27 +81,119 @@ public class AlgorXSolver extends StdSudokuSolver {
 			}
 			builder.append("\n");
 		}
-		//System.out.println(builder);
+		System.out.println(builder);
 		
-		//TODO remove rows that are already solved from binary matrix. 
+		//Remove rows that are already solved from binary matrix.
+		ArrayList<ArrayList<String>> matrix = this.processMatrix();
 		
 		// Execute algorithm X.
 		ArrayList<String> solution = new ArrayList<String>();
-		this.algX(this.binaryMatrix,solution);
-
+		this.algX(matrix,solution);
 
 		return this.solutionFound;
 	} // end of solve()
 
+	public ArrayList<ArrayList<String>> processMatrix() {
+		
+		//TODO getting closer - somthing is going wrong with the wrong constraints being removed.
+		// adjust which columns are staged for removal.
+		
+		//Staging area for rows and cols to delete from matrix. 
+		ArrayList<Integer> colIndexToRemove = new ArrayList<Integer>();
+		ArrayList<Integer> rowIndexToRemove = new ArrayList<Integer>();
+
+		
+		//Stage rows to remove which already have a value. 
+		//For each row in the sudoku grid.
+		for (int i = 1; i <= this.gridSize; i++) {
+			//For each column in sudoku grid.
+			for (int j = 1; j <= this.gridSize; j++) {
+				//Partial solution cell found.
+				if (this.grid.getCoord(i - 1,j - 1) != 0) {
+					int index = this.getMatrixIndex(i - 1, j - 1, this.grid.getCoord(i - 1,j - 1) - 1);
+					if (!rowIndexToRemove.contains(index)) {
+						rowIndexToRemove.add(index);
+					}
+				}
+			}
+		}
+		
+		//Stage columns to remove which relate only to above rows.
+		for (int i = 0; i < rowIndexToRemove.size(); i++) {
+			for (int j = 0; j < this.binaryMatrix.get(0).size(); j++) {
+				if (this.binaryMatrix.get(rowIndexToRemove.get(i)).get(j) == "1") {
+					if (!colIndexToRemove.contains(j)) {
+						colIndexToRemove.add(j);
+					}
+				}
+			}
+		}
+		
+		//Stage impossible value rows to remove.
+		//Columns associated with these rows will not be removed
+		//because the contraint has not been satisfied.
+		//For each row in sudoku grid.
+		for (int i = 1; i <= this.gridSize; i++) {
+			//For each column in sudoku grid.
+			for (int j = 1; j <= this.gridSize; j++) {
+				//Partial solution cell found.
+				if (this.grid.getCoord(i - 1,j - 1) != 0) {
+					//Remove every possible option for that cell from the matrix.
+					//For each row in the matrix
+					for (int k = 0 ; k < this.binaryMatrix.size(); k++) {
+						String[] cell = this.binaryMatrix.get(k).get(0).split(",");
+						//If that row has co-ordinates which are already in the partial solution.
+						if (Integer.parseInt(cell[0]) == i && Integer.parseInt(cell[1]) == j) {
+							//For each possible value
+							for (int value = 0; value < this.gridSize; value++) {
+								//Find the index of that row and add it to the removal stage.
+								int index = this.getMatrixIndex(i - 1,j - 1,value);
+								if (!rowIndexToRemove.contains(index)) {
+									rowIndexToRemove.add(index);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		//Sort columns in reverse order
+		Collections.sort(colIndexToRemove, Collections.reverseOrder());
+		
+		System.out.println("Row: " + rowIndexToRemove);
+		System.out.println("Col: " + colIndexToRemove);
+		
+		//TODO this can be in its own method
+
+		//Create new matrix here minus specified rows
+		ArrayList<ArrayList<String>> matrixCopy = new ArrayList<ArrayList<String>>();
+		for (int i = 0; i < this.binaryMatrix.size(); i++) {
+			if (!rowIndexToRemove.contains(i)) {
+				matrixCopy.add(new ArrayList<String>(this.binaryMatrix.get(i)));
+			}
+		}
+		
+		//Remove columns from new array
+		for (int i = 0; i < colIndexToRemove.size(); i++) {
+			for (int k = 0; k < matrixCopy.size(); k++) {
+				matrixCopy.get(k).remove(colIndexToRemove.get(i).intValue());
+			}
+		}
+		
+		StringBuilder builder = new StringBuilder("");
+		for (int i = 0; i < matrixCopy.size(); i++) {
+			for (int j = 0; j < matrixCopy.get(i).size(); j++) {
+				builder.append(matrixCopy.get(i).get(j) + " ");
+			}
+			builder.append("\n");
+		}
+		System.out.println(builder);
+		
+		return matrixCopy;
+	}
+	
 	public void algX(ArrayList<ArrayList<String>> matrix, ArrayList<String> solution) {
-		
-		//TODO Can't seem to try all options when backtracking.
-		// notice 1,1,9 is only tried once in the 9x9 attempt. 
-		// logic error somewhere. 
-		// Could try adding partial solution and seeing if 4x4 demonstrates
-		// bug a bit clearer when trying to solve. 
-		
-		//Could also try selecting column with least number of 1's.
 
 		// If the matrix A has no rows, the current partial solution
 		// is a valid solution; terminate successfully.
@@ -151,7 +243,7 @@ public class AlgorXSolver extends StdSudokuSolver {
 							matrixCopy.add(new ArrayList<String>(matrix.get(i)));
 						}
 					}
-					
+
 					//Sort columns to remove in reverse order so as not to mess up indexing.
 					Collections.sort(colIndexToRemove, Collections.reverseOrder());
 					
@@ -193,18 +285,14 @@ public class AlgorXSolver extends StdSudokuSolver {
 	
 	public void solutionFound(ArrayList<String> solution) {
 		this.solutionFound = true;
-		
-		//TODO Repopulate grid here
-		
-		System.out.println(solution);	
-	}
-	
-	public ArrayList<ArrayList<String>> twoDArrayListCopy(ArrayList<ArrayList<String>> arrayToCopy) {
-		ArrayList<ArrayList<String>> newArray = new ArrayList<ArrayList<String>>();
-		for(int i = 0; i < arrayToCopy.size(); i++) {
-		    newArray.add(new ArrayList<String>(arrayToCopy.get(i)));
+		for (String i : solution) {
+			String[] cell = i.split(",");	
+			//Method takes order value, Row, Column.
+			int value = Integer.parseInt(cell[2]);
+			int row = Integer.parseInt(cell[0]) - 1;
+			int column = Integer.parseInt(cell[1]) - 1;
+			this.grid.setCoord(value, row, column);
 		}
-		return newArray;
 	}
 
 	/*
@@ -366,12 +454,4 @@ public class AlgorXSolver extends StdSudokuSolver {
 	public int getMatrixIndex(int coord1, int coord2, int value) {
 		return (coord1) * gridSize * gridSize + (coord2) * gridSize + (value);
 	}
-
-	public int[] getSudokuIndex(int matrixIndex) {
-
-		int[] coords = new int[3];
-
-		return coords;
-	}
-
 } // end of class AlgorXSolver
