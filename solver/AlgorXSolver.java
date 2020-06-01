@@ -73,7 +73,7 @@ public class AlgorXSolver extends StdSudokuSolver {
 		this.mapKeys();
 
 		// Print Matrix for testing
-		System.out.println("Initial Print:");
+		//System.out.println("Initial Print:");
 		StringBuilder builder = new StringBuilder("");
 		for (int i = 0; i < this.binaryMatrix.size(); i++) {
 			for (int j = 0; j < this.binaryMatrix.get(i).size(); j++) {
@@ -81,7 +81,7 @@ public class AlgorXSolver extends StdSudokuSolver {
 			}
 			builder.append("\n");
 		}
-		System.out.println(builder);
+		//System.out.println(builder);
 		
 		//TODO remove rows that are already solved from binary matrix. 
 		
@@ -100,11 +100,15 @@ public class AlgorXSolver extends StdSudokuSolver {
 		// logic error somewhere. 
 		// Could try adding partial solution and seeing if 4x4 demonstrates
 		// bug a bit clearer when trying to solve. 
+		
+		//Could also try selecting column with least number of 1's.
 
 		// If the matrix A has no rows, the current partial solution
 		// is a valid solution; terminate successfully.
 		if (matrix.isEmpty()) {
-			this.solutionFound(solution);
+			if (!this.solutionFound) {
+				this.solutionFound(solution);
+			}
 			return;
 		} else {
 
@@ -140,10 +144,6 @@ public class AlgorXSolver extends StdSudokuSolver {
 						}
 					}
 					
-					Collections.sort(colIndexToRemove, Collections.reverseOrder());
-					//System.out.println("Columns: " + colIndexToRemove);
-					//System.out.println("Rows: " + rowIndexToRemove);
-					
 					//Create new matrix here minus specified rows
 					ArrayList<ArrayList<String>> matrixCopy = new ArrayList<ArrayList<String>>();
 					for (int i = 0; i < matrix.size(); i++) {
@@ -152,12 +152,19 @@ public class AlgorXSolver extends StdSudokuSolver {
 						}
 					}
 					
+					//Sort columns to remove in reverse order so as not to mess up indexing.
+					Collections.sort(colIndexToRemove, Collections.reverseOrder());
+					
 					//Remove columns from new array
 					for (int i = 0; i < colIndexToRemove.size(); i++) {
 						for (int k = 0; k < matrixCopy.size(); k++) {
 							matrixCopy.get(k).remove(colIndexToRemove.get(i).intValue());
 						}
 					}
+					
+					//Clear row/column removal arrays.
+					colIndexToRemove.clear();
+					rowIndexToRemove.clear();
 				
 					// Print Matrix for testing
 					StringBuilder builder = new StringBuilder("");
@@ -168,9 +175,8 @@ public class AlgorXSolver extends StdSudokuSolver {
 						builder.append("\n");
 					}
 					//System.out.println(builder);
-					
-					System.out.println(solution.size());
-					System.out.println(solution);
+					//System.out.println(solution.size());
+					//System.out.println(solution);
 					
 					//Reccur
 					algX(matrixCopy, solution);
