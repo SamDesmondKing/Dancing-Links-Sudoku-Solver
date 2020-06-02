@@ -21,6 +21,7 @@ public class AlgorXSolver extends StdSudokuSolver {
 	private int matrixCols;
 	private int numCells;
 	private boolean solutionFound;
+	private ArrayList<String> partialSolution;
 
 	private ArrayList<ArrayList<String>> binaryMatrix;
 
@@ -35,12 +36,14 @@ public class AlgorXSolver extends StdSudokuSolver {
 		this.gridSize = this.grid.getGridSize();
 		this.values = this.grid.getValues();
 		this.numCells = gridSize * gridSize;
-
 		this.matrixRows = (int) Math.pow(this.gridSize, 3);
 		this.matrixCols = (int) Math.pow(this.gridSize, 2) * 4;
 
 		// Initialize and populate the exact cover binary matrix with 0's.
 		this.binaryMatrix = new ArrayList<ArrayList<String>>();
+
+		// Initialize partial solution holder.
+		this.partialSolution = new ArrayList<String>();
 
 		for (int i = 0; i < matrixRows; i++) {
 			binaryMatrix.add(new ArrayList<String>());
@@ -73,7 +76,7 @@ public class AlgorXSolver extends StdSudokuSolver {
 		this.mapKeys();
 
 		// Print Matrix for testing
-		//System.out.println("Initial Print:");
+		// System.out.println("Initial Print:");
 		StringBuilder builder = new StringBuilder("");
 		for (int i = 0; i < this.binaryMatrix.size(); i++) {
 			for (int j = 0; j < this.binaryMatrix.get(i).size(); j++) {
@@ -82,117 +85,111 @@ public class AlgorXSolver extends StdSudokuSolver {
 			builder.append("\n");
 		}
 		System.out.println(builder);
-		
-		//Remove rows that are already solved from binary matrix.
-		ArrayList<ArrayList<String>> matrix = this.processMatrix();
-		
+
+		// Remove rows that are already solved from binary matrix.
+		ArrayList<ArrayList<String>> matrix = this.addPartialSolution(this.binaryMatrix);
+
 		// Execute algorithm X.
-		ArrayList<String> solution = new ArrayList<String>();
-		this.algX(matrix,solution);
+		this.algX(matrix, this.partialSolution);
 
 		return this.solutionFound;
 	} // end of solve()
 
-	public ArrayList<ArrayList<String>> processMatrix() {
-		
-		//TODO getting closer - somthing is going wrong with the wrong constraints being removed.
-		// adjust which columns are staged for removal.
-		
-		//Staging area for rows and cols to delete from matrix. 
-		ArrayList<Integer> colIndexToRemove = new ArrayList<Integer>();
-		ArrayList<Integer> rowIndexToRemove = new ArrayList<Integer>();
+	public ArrayList<ArrayList<String>> addPartialSolution(ArrayList<ArrayList<String>> matrix) {
 
 		
-		//Stage rows to remove which already have a value. 
-		//For each row in the sudoku grid.
-		for (int i = 1; i <= this.gridSize; i++) {
-			//For each column in sudoku grid.
-			for (int j = 1; j <= this.gridSize; j++) {
-				//Partial solution cell found.
-				if (this.grid.getCoord(i - 1,j - 1) != 0) {
-					int index = this.getMatrixIndex(i - 1, j - 1, this.grid.getCoord(i - 1,j - 1) - 1);
-					if (!rowIndexToRemove.contains(index)) {
-						rowIndexToRemove.add(index);
+		//TODO issue is matrix and matrixCopy - passing a version of the matrix to itself.
+		//this is written like a recursive method but it isn't. 
+		
+		//What if this method takes a matrix and a matrixRow to process, and the looping is done outside the method?
+		//Or, we could perform the matrix manipulation on the global binary matrix instead?
+		
+		// Store row/col indexs to delete
+		ArrayList<Integer> colIndexToRemove = new ArrayList<Integer>();
+		ArrayList<Integer> rowIndexToRemove = new ArrayList<Integer>();
+		// Store rows in matrix to visit which have solved sudoku cells.
+		ArrayList<Integer> matrixRowToProcess = new ArrayList<Integer>();
+		ArrayList<ArrayList<String>> matrixCopy = new ArrayList<ArrayList<String>>();
+
+		// Create a list of matrix rows to go through (0 indexed).
+		for (int i = 0; i < this.gridSize; i++) {
+			// For each column in sudoku grid.
+			for (int j = 0; j < this.gridSize; j++) {
+				// Partial solution cell found.
+				if (this.grid.getCoord(i, j) != 0) {
+					// System.out.println( "Row: " + (i+1) + " Col: " + (j+1) +" sudoku value: " +
+					// this.grid.getCoord(i, j));
+					int index = this.getMatrixIndex(i, j, this.grid.getCoord(i, j) - 1);
+					// System.out.println("Matrix ind: " + index);
+					if (!matrixRowToProcess.contains(index)) {
+						matrixRowToProcess.add(index);
 					}
 				}
 			}
 		}
-		
-		//Stage columns to remove which relate only to above rows.
-		for (int i = 0; i < rowIndexToRemove.size(); i++) {
-			for (int j = 0; j < this.binaryMatrix.get(0).size(); j++) {
-				if (this.binaryMatrix.get(rowIndexToRemove.get(i)).get(j) == "1") {
+
+		for (int r = 0; r < matrixRowToProcess.size(); r++) {
+			int matrixIndex = matrixRowToProcess.get(r);
+			// Include row r in the partial solution (key is located at index 0).
+			this.partialSolution.add(matrix.get(matrixIndex).get(0));
+			// For each column j such that A[r][j] = 1,
+			for (int j = 0; j < matrix.get(matrixIndex).size(); j++) {
+				if (matrix.get(matrixIndex).get(j).equals("1")) {
+					// for each row i such that A[i][j] = 1
+					// Go through each row in the matrix, if the value at column i = 1, stage for
+					// delete.
+					for (int i = 0; i < matrix.size(); i++) {
+						if (matrix.get(i).get(j).equals("1")) {
+							// stage row for deletion
+							if (!rowIndexToRemove.contains(i)) {
+								rowIndexToRemove.add(i);
+							}
+						}
+					}
+					// stage the col for deletion.
 					if (!colIndexToRemove.contains(j)) {
 						colIndexToRemove.add(j);
 					}
 				}
 			}
-		}
-		
-		//Stage impossible value rows to remove.
-		//Columns associated with these rows will not be removed
-		//because the contraint has not been satisfied.
-		//For each row in sudoku grid.
-		for (int i = 1; i <= this.gridSize; i++) {
-			//For each column in sudoku grid.
-			for (int j = 1; j <= this.gridSize; j++) {
-				//Partial solution cell found.
-				if (this.grid.getCoord(i - 1,j - 1) != 0) {
-					//Remove every possible option for that cell from the matrix.
-					//For each row in the matrix
-					for (int k = 0 ; k < this.binaryMatrix.size(); k++) {
-						String[] cell = this.binaryMatrix.get(k).get(0).split(",");
-						//If that row has co-ordinates which are already in the partial solution.
-						if (Integer.parseInt(cell[0]) == i && Integer.parseInt(cell[1]) == j) {
-							//For each possible value
-							for (int value = 0; value < this.gridSize; value++) {
-								//Find the index of that row and add it to the removal stage.
-								int index = this.getMatrixIndex(i - 1,j - 1,value);
-								if (!rowIndexToRemove.contains(index)) {
-									rowIndexToRemove.add(index);
-								}
-							}
-						}
-					}
+			System.out.println(rowIndexToRemove);
+			System.out.println(colIndexToRemove);
+			
+			// Create new matrix here minus specified rows
+			for (int i = 0; i < matrix.size(); i++) {
+				if (!rowIndexToRemove.contains(i)) {
+					matrixCopy.add(new ArrayList<String>(matrix.get(i)));
 				}
 			}
-		}
-		
-		//Sort columns in reverse order
-		Collections.sort(colIndexToRemove, Collections.reverseOrder());
-		
-		System.out.println("Row: " + rowIndexToRemove);
-		System.out.println("Col: " + colIndexToRemove);
-		
-		//TODO this can be in its own method
 
-		//Create new matrix here minus specified rows
-		ArrayList<ArrayList<String>> matrixCopy = new ArrayList<ArrayList<String>>();
-		for (int i = 0; i < this.binaryMatrix.size(); i++) {
-			if (!rowIndexToRemove.contains(i)) {
-				matrixCopy.add(new ArrayList<String>(this.binaryMatrix.get(i)));
+			// Sort columns to remove in reverse order so as not to mess up indexing.
+			Collections.sort(colIndexToRemove, Collections.reverseOrder());
+
+			// Remove columns from new array
+			for (int i = 0; i < colIndexToRemove.size(); i++) {
+				for (int k = 0; k < matrixCopy.size(); k++) {
+					matrixCopy.get(k).remove(colIndexToRemove.get(i).intValue());
+				}
 			}
+
+			// Print Matrix for testing
+//			StringBuilder builder = new StringBuilder("");
+//			for (int i = 0; i < matrixCopy.size(); i++) {
+//				for (int j = 0; j < matrixCopy.get(i).size(); j++) {
+//					builder.append(matrixCopy.get(i).get(j) + " ");
+//				}
+//				builder.append("\n");
+//			}
+//			//System.out.println(builder);
+
+			// Clear row/column removal arrays.
+			colIndexToRemove.clear();
+			rowIndexToRemove.clear();
+
 		}
-		
-		//Remove columns from new array
-		for (int i = 0; i < colIndexToRemove.size(); i++) {
-			for (int k = 0; k < matrixCopy.size(); k++) {
-				matrixCopy.get(k).remove(colIndexToRemove.get(i).intValue());
-			}
-		}
-		
-		StringBuilder builder = new StringBuilder("");
-		for (int i = 0; i < matrixCopy.size(); i++) {
-			for (int j = 0; j < matrixCopy.get(i).size(); j++) {
-				builder.append(matrixCopy.get(i).get(j) + " ");
-			}
-			builder.append("\n");
-		}
-		System.out.println(builder);
-		
 		return matrixCopy;
 	}
-	
+
 	public void algX(ArrayList<ArrayList<String>> matrix, ArrayList<String> solution) {
 
 		// If the matrix A has no rows, the current partial solution
@@ -220,23 +217,24 @@ public class AlgorXSolver extends StdSudokuSolver {
 					for (int j = 0; j < matrix.get(r).size(); j++) {
 						if (matrix.get(r).get(j).equals("1")) {
 							// for each row i such that A[i][j] = 1
-							//Go through each row in the matrix, if the value at column i = 1, stage for delete.
+							// Go through each row in the matrix, if the value at column i = 1, stage for
+							// delete.
 							for (int i = 0; i < matrix.size(); i++) {
 								if (matrix.get(i).get(j).equals("1")) {
 									// stage row for deletion
 									if (!rowIndexToRemove.contains(i)) {
 										rowIndexToRemove.add(i);
-									}	
+									}
 								}
 							}
 							// stage the col for deletion.
 							if (!colIndexToRemove.contains(j)) {
-							colIndexToRemove.add(j);
+								colIndexToRemove.add(j);
 							}
 						}
 					}
-					
-					//Create new matrix here minus specified rows
+
+					// Create new matrix here minus specified rows
 					ArrayList<ArrayList<String>> matrixCopy = new ArrayList<ArrayList<String>>();
 					for (int i = 0; i < matrix.size(); i++) {
 						if (!rowIndexToRemove.contains(i)) {
@@ -244,33 +242,33 @@ public class AlgorXSolver extends StdSudokuSolver {
 						}
 					}
 
-					//Sort columns to remove in reverse order so as not to mess up indexing.
+					// Sort columns to remove in reverse order so as not to mess up indexing.
 					Collections.sort(colIndexToRemove, Collections.reverseOrder());
-					
-					//Remove columns from new array
+
+					// Remove columns from new array
 					for (int i = 0; i < colIndexToRemove.size(); i++) {
 						for (int k = 0; k < matrixCopy.size(); k++) {
 							matrixCopy.get(k).remove(colIndexToRemove.get(i).intValue());
 						}
 					}
-					
-					//Clear row/column removal arrays.
+
+					// Clear row/column removal arrays.
 					colIndexToRemove.clear();
 					rowIndexToRemove.clear();
-				
+
 					// Print Matrix for testing
-					StringBuilder builder = new StringBuilder("");
+					StringBuilder builder2 = new StringBuilder("");
 					for (int i = 0; i < matrixCopy.size(); i++) {
 						for (int j = 0; j < matrixCopy.get(i).size(); j++) {
-							builder.append(matrixCopy.get(i).get(j) + " ");
+							builder2.append(matrixCopy.get(i).get(j) + " ");
 						}
-						builder.append("\n");
+						builder2.append("\n");
 					}
-					//System.out.println(builder);
-					//System.out.println(solution.size());
-					//System.out.println(solution);
-					
-					//Reccur
+					// System.out.println(builder);
+					// System.out.println(solution.size());
+					// System.out.println(solution);
+
+					// Reccur
 					algX(matrixCopy, solution);
 
 					if (this.solutionFound == true) {
@@ -282,12 +280,12 @@ public class AlgorXSolver extends StdSudokuSolver {
 			}
 		}
 	}
-	
+
 	public void solutionFound(ArrayList<String> solution) {
 		this.solutionFound = true;
 		for (String i : solution) {
-			String[] cell = i.split(",");	
-			//Method takes order value, Row, Column.
+			String[] cell = i.split(",");
+			// Method takes order value, Row, Column.
 			int value = Integer.parseInt(cell[2]);
 			int row = Integer.parseInt(cell[0]) - 1;
 			int column = Integer.parseInt(cell[1]) - 1;
