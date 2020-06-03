@@ -63,10 +63,11 @@ public class AlgorXSolver extends StdSudokuSolver {
 
 		// Map row/col/value keys to each row so we can build solution.
 		this.mapKeys();
-
-		// Remove rows that are already solved from binary matrix.
-		this.removeSolvedCells(this.binaryMatrix);
 		
+		// Remove rows that are already solved from binary matrix.
+		this.partialSolution = new ArrayList<String>();
+		this.removeSolvedCells(this.binaryMatrix);
+	
 		// Execute algorithm X.
 		this.algX(this.binaryMatrix, this.partialSolution);
 
@@ -86,7 +87,7 @@ public class AlgorXSolver extends StdSudokuSolver {
 				// Solved cell found.
 				if (this.grid.getCoord(i, j) != 0 && !this.seenCoords.contains(i+" "+j) && breakCheck == false) {
 					this.seenCoords.add(i+" "+j);
-					matrixIndex = this.getReducedMatrixIndex(matrix, i, j, this.grid.getCoord(i, j));
+					matrixIndex = this.getMatrixIndex(matrix, i, j, this.grid.getCoord(i, j));
 					breakCheck = true;
 				}
 			}
@@ -210,15 +211,6 @@ public class AlgorXSolver extends StdSudokuSolver {
 					colIndexToRemove.clear();
 					rowIndexToRemove.clear();
 
-					// Print Matrix for testing
-					StringBuilder builder2 = new StringBuilder("");
-					for (int i = 0; i < matrixCopy.size(); i++) {
-						for (int j = 0; j < matrixCopy.get(i).size(); j++) {
-							builder2.append(matrixCopy.get(i).get(j) + " ");
-						}
-						builder2.append("\n");
-					}
-
 					// Reccur
 					algX(matrixCopy, solution);
 
@@ -253,7 +245,7 @@ public class AlgorXSolver extends StdSudokuSolver {
 	public void mapKeys() {
 		int column = 1;
 		int row = 1;
-		int value = 1;
+		int valueCount = 0;
 		String key;
 		int columnCount = 1;
 		int rowCount = 0;
@@ -273,14 +265,14 @@ public class AlgorXSolver extends StdSudokuSolver {
 				}
 			}
 			// Keep track of value
-			if (value > gridSize) {
-				value = 1;
+			if (valueCount >= gridSize) {
+				valueCount = 0;
 			}
-			key = Integer.toString(row) + "," + Integer.toString(column) + "," + Integer.toString(value);
+			key = Integer.toString(row) + "," + Integer.toString(column) + "," + Integer.toString(this.values.get(valueCount));
 
 			this.binaryMatrix.get(i).add(0, key);
 
-			value++;
+			valueCount++;
 			columnCount++;
 			rowCount++;
 		}
@@ -374,7 +366,7 @@ public class AlgorXSolver extends StdSudokuSolver {
 				for (int j = coord2; j < coord2 + boxWidth; j++) {
 					// For each possible value in each cell.
 					for (int h = 0; h < numBoxes; h++) {
-						int matrixIndex = this.getFullMatrixIndex(i, j, h);
+						int matrixIndex = this.getMatrixIndex(this.binaryMatrix, i, j, h);
 						this.binaryMatrix.get(matrixIndex).set(matrixStartIndex + boxStartingIndex + h, "1");
 					}
 				}
@@ -391,23 +383,13 @@ public class AlgorXSolver extends StdSudokuSolver {
 			boxConstraints(coord1, coord2, boxWidth, boxNum, matrixStartIndex);
 		}
 	}
-
-	/*
-	 * Takes sudoku coords/value and returns that position in the full matrix,
-	 * only works before any reduction takes place. Can be used before matrix has 
-	 * keys mapped to each row as index is determined mathematically. 
-	 */
-	//TODO needs to be reworked to take symbols. 
-	public int getFullMatrixIndex(int coord1, int coord2, int value) {
-		return (coord1) * gridSize * gridSize + (coord2) * gridSize + (value);
-	}
 	
 	/*
 	 * Takes coords/value and returns position in the matrix based on keys.
 	 * Can be used on a partially reduced matrix. Downside is less efficient
 	 * than fullMatrixIndex method.  
 	 */
-	public int getReducedMatrixIndex(ArrayList<ArrayList<String>> matrix, int coord1, int coord2, int value) {
+	public int getMatrixIndex(ArrayList<ArrayList<String>> matrix, int coord1, int coord2, int value) {
 		String searchString = (coord1 + 1) + "," + (coord2 + 1) + "," + value;
 		int result = 0;
 		for (int i = 0; i < matrix.size(); i++) {
