@@ -116,9 +116,5 @@ public class DancingLinksSolver extends StdSudokuSolver {
 			this.grid.setCoord(value, row, column);
 		}
 	}
-	
-	public void selectColumn() {
-		
-	}
 
 } // end of class DancingLinksSolver

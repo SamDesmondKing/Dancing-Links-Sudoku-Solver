@@ -21,23 +21,42 @@ public class AlgorXSolver extends StdSudokuSolver {
 	private int matrixCols;
 	private int numCells;
 	private boolean solutionFound;
-	private ArrayList<String> seenCoords;
 	private ArrayList<String> partialSolution;
 	private ArrayList<ArrayList<String>> binaryMatrix;
+	private ArrayList<String> seenCoords;
 
 	public AlgorXSolver() {
+		this.partialSolution = new ArrayList<String>();
+		this.seenCoords = new ArrayList<String>();
 	} // end of AlgorXSolver()
 
 	@Override
 	public boolean solve(SudokuGrid grid) {
-		this.solutionFound = false;
-		this.grid = (StdSudokuGrid) grid;
-		this.gridSize = this.grid.getGridSize();
-		this.values = this.grid.getValues();
+		
+		//Create binary cover matrix
+		this.binaryMatrix = this.createCoverMatrix((StdSudokuGrid) grid);
+		
+		// Execute algorithm X.
+		this.algX(this.binaryMatrix, this.partialSolution);
+
+		return this.solutionFound;
+	} // end of solve()
+
+	/*
+	 * Creates binary cover matrix fom sudoku grid
+	 * re-used to create BCM for dancing links solution also,
+	 * which is why it takes a grid as an argument rather than
+	 * just using this.grid.  
+	 */
+	public ArrayList<ArrayList<String>> createCoverMatrix(StdSudokuGrid grid) {
+		
+		this.grid = grid;
+		this.gridSize = grid.getGridSize();
+		this.values = grid.getValues();
 		this.numCells = gridSize * gridSize;
 		this.matrixRows = (int) Math.pow(this.gridSize, 3);
 		this.matrixCols = (int) Math.pow(this.gridSize, 2) * 4;
-		this.seenCoords = new ArrayList<String>();
+		this.solutionFound = false;
 
 		// Initialize and populate the exact cover binary matrix with 0's.
 		this.binaryMatrix = new ArrayList<ArrayList<String>>();
@@ -48,36 +67,34 @@ public class AlgorXSolver extends StdSudokuSolver {
 		this.cellConstraints(matrixStartingIndex);
 
 		// Add row constraints to binary matrix.
-		matrixStartingIndex += numCells;
+		matrixStartingIndex += this.numCells;
 		this.rowConstraints(matrixStartingIndex);
 
 		// Add column constraints to binary matrix.
-		matrixStartingIndex += numCells;
+		matrixStartingIndex += this.numCells;
 		columnConstraints(matrixStartingIndex);
-
-		// Add box constraints to binary matrix.
-		matrixStartingIndex += numCells;
-		int boxWidth = (int) Math.sqrt(gridSize);
-		this.boxConstraints(0, 0, boxWidth, 0, matrixStartingIndex);
 
 		// Map row/col/value keys to each row so we can build solution.
 		this.mapKeys();
 		
+		// Add box constraints to binary matrix.
+		matrixStartingIndex += this.numCells + 1;
+		int boxWidth = (int) Math.sqrt(this.gridSize);
+		this.boxConstraints(0, 0, boxWidth, 0, matrixStartingIndex);
+		
 		// Remove rows that are already solved from binary matrix.
-		this.partialSolution = new ArrayList<String>();
 		this.removeSolvedCells(this.binaryMatrix);
-	
-		// Execute algorithm X.
-		this.algX(this.binaryMatrix, this.partialSolution);
 
-		return this.solutionFound;
-	} // end of solve()
+		return this.binaryMatrix;
+	}
 
 	/*
-	 * Similar to Algorithm X, but only removes rows/cols from the binary
+	 * Removed rows corresponding to solved cells from the BCM. 
+	 * Similar to Alg X, but only removes rows/cols from the binary
 	 * matrix which have already been solved in the input grid. 
 	 */
 	public void removeSolvedCells(ArrayList<ArrayList<String>> matrix) {
+		
 		int matrixIndex = -1;
 		boolean breakCheck = false;
 		for (int i = 0; i < this.gridSize; i++) {
@@ -91,10 +108,12 @@ public class AlgorXSolver extends StdSudokuSolver {
 				}
 			}
 		}
+
 		if (matrixIndex == -1) {
 			this.binaryMatrix = matrix;
 			return;
 		} else {
+
 			ArrayList<Integer> colIndexToRemove = new ArrayList<Integer>();
 			ArrayList<Integer> rowIndexToRemove = new ArrayList<Integer>();
 			ArrayList<ArrayList<String>> matrixCopy = new ArrayList<ArrayList<String>>();
@@ -136,11 +155,10 @@ public class AlgorXSolver extends StdSudokuSolver {
 					matrixCopy.get(k).remove(colIndexToRemove.get(i).intValue());
 				}
 			}
-			//Reccur for each solved cell in the input grid.
 			removeSolvedCells(matrixCopy);
 		}
 	}
-
+	
 	/*
 	 * Algorithm X. 
 	 */
@@ -362,7 +380,7 @@ public class AlgorXSolver extends StdSudokuSolver {
 				for (int j = coord2; j < coord2 + boxWidth; j++) {
 					// For each possible value in each cell.
 					for (int h = 0; h < numBoxes; h++) {
-						int matrixIndex = this.getMatrixIndex(this.binaryMatrix, i, j, h);
+						int matrixIndex = this.getMatrixIndex(this.binaryMatrix, i, j, this.values.get(h));
 						this.binaryMatrix.get(matrixIndex).set(matrixStartIndex + boxStartingIndex + h, "1");
 					}
 				}
@@ -382,10 +400,10 @@ public class AlgorXSolver extends StdSudokuSolver {
 	
 	/*
 	 * Takes coords/value and returns position in the matrix based on keys.
-	 * Can be used on a partially reduced matrix.
 	 */
 	public int getMatrixIndex(ArrayList<ArrayList<String>> matrix, int coord1, int coord2, int value) {
 		String searchString = (coord1 + 1) + "," + (coord2 + 1) + "," + value;
+		
 		int result = 0;
 		for (int i = 0; i < matrix.size(); i++) {
 			if (matrix.get(i).get(0).equals(searchString)) {
@@ -409,61 +427,5 @@ public class AlgorXSolver extends StdSudokuSolver {
 				binaryMatrix.get(i).add("0");
 			}
 		}
-	}
-	
-	/*
-	 * Take sudoku grid and create and return BCM.
-	 * Used in our Dancing Links class.  
-	 */
-	public ArrayList<ArrayList<String>> createCoverMatrix(StdSudokuGrid grid) {
-		
-		this.solutionFound = false;
-		this.grid = (StdSudokuGrid) grid;
-		this.gridSize = this.grid.getGridSize();
-		this.values = this.grid.getValues();
-		this.numCells = gridSize * gridSize;
-		this.matrixRows = (int) Math.pow(this.gridSize, 3);
-		this.matrixCols = (int) Math.pow(this.gridSize, 2) * 4;
-		this.seenCoords = new ArrayList<String>();
-
-		// Initialize and populate the exact cover binary matrix with 0's.
-		this.binaryMatrix = new ArrayList<ArrayList<String>>();
-		this.initBinaryMatrix();
-
-		// Add cell constraints to binary matrix.
-		int matrixStartingIndex = 0;
-		this.cellConstraints(matrixStartingIndex);
-
-		// Add row constraints to binary matrix.
-		matrixStartingIndex += numCells;
-		this.rowConstraints(matrixStartingIndex);
-
-		// Add column constraints to binary matrix.
-		matrixStartingIndex += numCells;
-		columnConstraints(matrixStartingIndex);
-
-		// Add box constraints to binary matrix.
-		matrixStartingIndex += numCells;
-		int boxWidth = (int) Math.sqrt(gridSize);
-		this.boxConstraints(0, 0, boxWidth, 0, matrixStartingIndex);
-
-		// Map row/col/value keys to each row so we can build solution.
-		this.mapKeys();
-		
-		// Remove rows that are already solved from binary matrix.
-		this.partialSolution = new ArrayList<String>();
-		this.removeSolvedCells(this.binaryMatrix);
-		
-		//Print Matrix for testing
-		StringBuilder builder = new StringBuilder("");
-		for (int i = 0; i < this.binaryMatrix.size(); i++) {
-			for (int j = 0; j < this.binaryMatrix.get(i).size(); j++) {
-				builder.append(this.binaryMatrix.get(i).get(j) + " ");
-			}
-			builder.append("\n");
-		}
-		//System.out.println(builder);
-
-		return this.binaryMatrix;
 	}
 } // end of class AlgorXSolver
