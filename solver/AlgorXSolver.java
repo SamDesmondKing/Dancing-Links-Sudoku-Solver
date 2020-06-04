@@ -453,6 +453,16 @@ public class AlgorXSolver extends StdSudokuSolver {
 		// Remove rows that are already solved from binary matrix.
 		this.partialSolution = new ArrayList<String>();
 		this.removeSolvedCells(this.binaryMatrix);
+		
+		//Print Matrix for testing
+		StringBuilder builder = new StringBuilder("");
+		for (int i = 0; i < this.binaryMatrix.size(); i++) {
+			for (int j = 0; j < this.binaryMatrix.get(i).size(); j++) {
+				builder.append(this.binaryMatrix.get(i).get(j) + " ");
+			}
+			builder.append("\n");
+		}
+		//System.out.println(builder);
 
 		return this.binaryMatrix;
 	}

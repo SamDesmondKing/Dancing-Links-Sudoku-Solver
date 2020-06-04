@@ -37,7 +37,6 @@ public class HeaderNode extends Node {
 	 * Undoes the cover method as outlined above.
 	 */
 	public void uncover() {
-		
 		for (Node i = this.getUp(); i != this; i = i.getUp()) {
 			for (Node j = i.getLeft(); j != i; j = j.getLeft()) {
 				//Take advantage of covered node's existing pointers to insert.
@@ -46,7 +45,6 @@ public class HeaderNode extends Node {
 				j.getHead().incrementSize();
 			}
 		}
-		
 		//Done last to maintain strict reverse order.
 		insertLeftRight();
 	}
@@ -60,5 +58,13 @@ public class HeaderNode extends Node {
 	
 	public void incrementSize() {
 		this.size += 1;
+	}
+	
+	public void setSize(int size) {
+		this.size = size;
+	}
+
+	public String getLabel() {
+		return this.label;
 	}
 }

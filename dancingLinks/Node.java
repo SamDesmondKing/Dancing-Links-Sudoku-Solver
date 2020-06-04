@@ -7,88 +7,102 @@ public class Node {
 	private Node up;
 	private Node down;
 	private HeaderNode head;
+	private String value;
 	
 	public Node() {
 		this.left = this;
 		this.right = this;
 		this.up = this;
 		this.down = this;
+		this.value = "header";
 	}
 	
-	public Node(HeaderNode columnHead) {
+	public Node(HeaderNode columnHead, String value) {
 		this.left = this;
 		this.right = this;
 		this.up = this;
 		this.down = this;
 		this.head = columnHead; 
+		this.value = value;
 	}
 	
 	/*
 	 * Takes node and links to the bottom of this node.
-	 * used in full structure creation.
+	 * Ensures circularity (Nodes created without arguments 
+	 * have all directions pointing to itself).
+	 * Used in full structure creation.
 	 */
 	public Node linkBottom(Node node) {
-		node.down = down;
+		node.down = this.down;
 	    node.down.up = node;
 	    node.up = this;
-	    down = node;
+	    this.down = node;
 	    return node;
 	}
 	
 	/*
-	 * Takes node and links to the left of this node.
-	 * used in full structure creation.
+	 * Takes node and links it to the left of this node.
+	 * Ensures circularity (Nodes created without arguments 
+	 * have all directions pointing to itself).
+	 * Used in full structure creation.
 	 */
 	public Node linkLeft(Node node) {
-		node.left = left;
+		node.left = this.left;
 		node.left.right = node;
 		node.right = this;
-		left = node;
+		this.left = node;
 		return node;
 	}
 	
 	/*
-	 * Takes node and links to the right of this node.
-	 * used in full structure creation.
+	 * Takes node and links it to the right of this node.
+	 * Ensures circularity (Nodes created without arguments 
+	 * have all directions pointing to itself).
+	 * Used in full structure creation.
+	 * 
 	 */
 	public Node linkRight(Node node) {
-		node.right = right;
+		node.right = this.right;
 	    node.right.left = node;
 	    node.left = this;
-	    right = node;
+	    this.right = node;
 	    return node;
 	} 
 	
 	/*
-	 * Removes this node by stitching together left and right nodes. 
+	 * Removes this node by stitching together left and right nodes.
+	 * used when covering col/rows. 
 	 */
 	public void removeLeftRight() {
-		left.right = right;
-	    right.left = left;
+		this.left.right = this.right;
+	    this.right.left = this.left;
 	}
 	
 	/*
 	 * Inserts this node and updates nodes to left and right to point here.
+	 * used when uncovering col/rows.
 	 */
 	public void insertLeftRight() {
-		left.right = this;
-	    right.left = this;
+		this.left.right = this;
+	    this.right.left = this;
 	}
 	
 	/*
 	 * Removes this node by stitching together up and down nodes.
+	 * used when covering col/rows.
 	 */
 	public void removeUpDown() {
-		up.down = down;
-		down.up = up;
+		this.up.down = this.down;
+		this.down.up = this.up;
 	}
 	
 	/*
 	 * Inserts this node and updates up and down nodes to point here.
+	 * used when uncovering col/rows.
 	 */
 	public void insertUpDown() {
-		up.down = this;
-	    down.up = this;
+		this.up.down = this;
+	    this.down.up = this;
 	}
 	
 	/*
@@ -116,5 +130,9 @@ public class Node {
 	
 	public HeaderNode getHead() {
 		return this.head;
+	}
+	
+	public String getValue() {
+		return this.value;
 	}
 }
