@@ -12,7 +12,7 @@ import dancingLinks.Node;
 import grid.StdSudokuGrid;
 import grid.SudokuGrid;
 
-//TODO Note: this implimentation will allow us to keep track of the 
+//TODO Note: this implementation will allow us to keep track of the 
 //number of nodes in each column, and select the one with the least nodes,
 //unlike the BCM solver which chose the first column each time. 
 
@@ -31,7 +31,6 @@ public class DancingLinksSolver extends StdSudokuSolver {
 
 	@Override
 	public boolean solve(SudokuGrid grid) {
-
 		// Convert grid to std grid.
 		this.grid = (StdSudokuGrid) grid;
 
@@ -51,16 +50,10 @@ public class DancingLinksSolver extends StdSudokuSolver {
 		return this.solutionFound;
 	} // end of solve()
 
-
+	/*
+	 * Algorithm X for DLX.
+	 */
 	public void algX(HeaderNode masterNode, ArrayList<String> solution) {
-		//System.out.println("Master: " + masterNode.getLabel());
-		//System.out.println("Check: " + ((HeaderNode) masterNode.getRight()).getLabel());
-		//System.out.println("");
-		
-		//this.dancingLinks.print();
-		//System.out.println("---------------------------------------------");
-		//System.out.println(solution);
-		
 		if (masterNode.getRight().equals(masterNode)) {
 			if (!this.solutionFound) {
 				this.solutionFound(solution);
@@ -82,10 +75,8 @@ public class DancingLinksSolver extends StdSudokuSolver {
 					rowNode.getHead().cover();
 					rowNode = rowNode.getRight();
 				}
-
 				//Reccur
 				algX(masterNode, solution);
-				
 				if (this.solutionFound == true) {
 					break;
 				} else {
@@ -105,6 +96,10 @@ public class DancingLinksSolver extends StdSudokuSolver {
 		}
 	}
 	
+	/*
+	 * Called when alg X finds a solution.
+	 * Allows us to break out of recursion early. 
+	 */
 	public void solutionFound(ArrayList<String> solution) {
 		this.solutionFound = true;
 		for (String i : solution) {

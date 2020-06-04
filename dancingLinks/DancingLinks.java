@@ -31,11 +31,10 @@ public class DancingLinks {
 			this.masterNode = (HeaderNode) this.masterNode.linkRight(headerNode);
 
 		}
-
 		// Circle back around to master node.
 		// (Will have been maintained as the 'right' node of the rightmost column)
 		this.masterNode = (HeaderNode) this.masterNode.getRight();
-
+		
 		// Build rows
 		// For each row in the matrix
 		for (int i = 0; i < matrix.size(); i++) {
@@ -63,13 +62,6 @@ public class DancingLinks {
 			}
 		}
 		this.masterNode.setSize(numCols);
-		
-		//Remove empty columns
-		for (HeaderNode i : columns) {		
-			if (i.getDown().getValue().equals("header")) {
-				i.cover();
-			}
-		}
 	}
 	
 	/*
@@ -79,6 +71,9 @@ public class DancingLinks {
 		return this.masterNode;
 	}
 	
+	/*
+	 * Print struct for testing.
+	 */
 	public void print() {
 			//Print for testing.
 			StringBuilder b = new StringBuilder();
