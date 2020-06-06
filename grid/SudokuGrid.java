@@ -5,6 +5,7 @@
  package grid;
 
  import java.io.*;
+import java.util.ArrayList;
 
 
 /**
@@ -61,5 +62,17 @@ public abstract class SudokuGrid
      * @return True if grid satisfies all constraints of the game in question.
      */
     public abstract boolean validate();
+    
+    /*
+     *  -- Getter and Setter Methods --
+     */
+    
+    public abstract int getGridSize();
+    
+    public abstract ArrayList<Integer> getValues();
+    
+    public abstract int getCoord(int coord1, int coord2);
+    
+    public abstract void setCoord(int value, int coord1, int coord2);
 
 } // end of abstract class SudokuGrid

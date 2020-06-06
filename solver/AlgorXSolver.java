@@ -6,6 +6,7 @@ package solver;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import grid.KillerSudokuGrid;
 import grid.StdSudokuGrid;
 import grid.SudokuGrid;
 
@@ -14,7 +15,7 @@ import grid.SudokuGrid;
  */
 public class AlgorXSolver extends StdSudokuSolver {
 
-	private StdSudokuGrid grid;
+	private SudokuGrid grid;
 	private ArrayList<Integer> values;
 	private int gridSize;
 	private int matrixRows;
@@ -32,9 +33,8 @@ public class AlgorXSolver extends StdSudokuSolver {
 
 	@Override
 	public boolean solve(SudokuGrid grid) {
-		
 		//Create binary cover matrix
-		this.binaryMatrix = this.createCoverMatrix((StdSudokuGrid) grid);
+		this.binaryMatrix = this.createCoverMatrix(grid);
 		
 		// Execute algorithm X.
 		this.algX(this.binaryMatrix, this.partialSolution);
@@ -48,11 +48,17 @@ public class AlgorXSolver extends StdSudokuSolver {
 	 * which is why it takes a grid as an argument rather than
 	 * just using this.grid.  
 	 */
-	public ArrayList<ArrayList<String>> createCoverMatrix(StdSudokuGrid grid) {
+	public ArrayList<ArrayList<String>> createCoverMatrix(SudokuGrid grid) {
 		
-		this.grid = grid;
-		this.gridSize = grid.getGridSize();
-		this.values = grid.getValues();
+		//Grid conversion
+		if (grid instanceof StdSudokuGrid) {
+			this.grid = (StdSudokuGrid) grid;
+		} else {
+			this.grid = (KillerSudokuGrid) grid;
+		}
+		
+		this.gridSize = this.grid.getGridSize();
+		this.values = this.grid.getValues();
 		this.numCells = gridSize * gridSize;
 		this.matrixRows = (int) Math.pow(this.gridSize, 3);
 		this.matrixCols = (int) Math.pow(this.gridSize, 2) * 4;
