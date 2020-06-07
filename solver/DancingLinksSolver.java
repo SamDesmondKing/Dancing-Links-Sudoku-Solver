@@ -60,7 +60,7 @@ public class DancingLinksSolver extends StdSudokuSolver {
 			}
 		} else {
 			//Choose a column c (deterministically)
-			HeaderNode columnChoice = (HeaderNode) masterNode.getRight();
+			HeaderNode columnChoice = this.chooseColumn(masterNode);
 			columnChoice.cover();
 			//For each node in the column
 			Node colNode = columnChoice.getDown();
@@ -94,6 +94,29 @@ public class DancingLinksSolver extends StdSudokuSolver {
 			}
 			columnChoice.uncover();
 		}
+	}
+	
+	/*
+	 * Find the HeaderNode with the least number of Nodes,
+	 * equivalent to finding the column with the least number
+	 * of '1's as per Knuth's suggested column choice heuristic. 
+	 */
+	public HeaderNode chooseColumn(HeaderNode masterNode) {
+		HeaderNode choice = null;
+		int min = 0;
+		
+		HeaderNode nextNode = (HeaderNode) masterNode.getRight();
+		while (!nextNode.equals(masterNode)) {
+			if (min == 0) {
+				min =  nextNode.getSize();
+				choice = nextNode;
+			} else if (nextNode.getSize() < min) {
+				min = nextNode.getSize();
+				choice = nextNode;
+			}
+			nextNode = (HeaderNode) nextNode.getRight();
+		}
+		return choice;
 	}
 	
 	/*

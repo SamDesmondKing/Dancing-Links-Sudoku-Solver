@@ -47,7 +47,7 @@ public class KillerAdvancedSolver extends StdSudokuSolver {
 	} // end of solve()
 
 	/*
-	 * Algorithm X for DLX.
+	 * Algorithm X for Killer DLX.
 	 */
 	public void algX(HeaderNode masterNode, ArrayList<String> solution) {
 		if (masterNode.getRight().equals(masterNode)) {
@@ -55,15 +55,24 @@ public class KillerAdvancedSolver extends StdSudokuSolver {
 				this.solutionFound(solution);
 			}
 		} else {
-			//Choose a column c (deterministically)
-			HeaderNode columnChoice = (HeaderNode) masterNode.getRight();
+			//Choose a column c (deterministically).
+			HeaderNode columnChoice = this.chooseColumn(masterNode);
 			columnChoice.cover();
 			//For each node in the column
 			Node colNode = columnChoice.getDown();
 			while (colNode != columnChoice) {
 				// Choose a row r such that A[r] = 1 (nondeterministically).
 				// Include row r in the partial solution.
+				
+				//Validate solution
 				solution.add(colNode.getValue());
+				if (!this.checkSolution(solution)) {
+					//Try different value if this one won't work.
+					solution.remove(solution.size() - 1);
+					colNode = colNode.getDown();
+					continue;
+				} 
+				
 				// For each column j such that A[r][j] = 1,
 				Node rowNode = colNode.getRight();
 				while (rowNode != colNode) {
@@ -90,6 +99,59 @@ public class KillerAdvancedSolver extends StdSudokuSolver {
 			}
 			columnChoice.uncover();
 		}
+	}
+	
+	/*
+	 * Find the HeaderNode with the least number of Nodes,
+	 * equivalent to finding the column with the least number
+	 * of '1's as per Knuth's suggested column choice heuristic. 
+	 */
+	public HeaderNode chooseColumn(HeaderNode masterNode) {
+		HeaderNode choice = null;
+		int min = 0;
+		
+		HeaderNode nextNode = (HeaderNode) masterNode.getRight();
+		while (!nextNode.equals(masterNode)) {
+			if (min == 0) {
+				min =  nextNode.getSize();
+				choice = nextNode;
+			} else if (nextNode.getSize() < min) {
+				min = nextNode.getSize();
+				choice = nextNode;
+			}
+			nextNode = (HeaderNode) nextNode.getRight();
+		}
+		return choice;
+	}
+	
+	/*
+	 * Checks solution to ensure complete cages are correct
+	 */
+	public boolean checkSolution(ArrayList<String> solution) {
+		
+		//isValidCell(int coord1, int coord2, int newValue) 
+		boolean result = true;
+		
+		//Fill the grid
+		for (String i : solution) {
+			String[] splitString = i.split(",");
+			int coord1 = Integer.parseInt(splitString[0]) - 1;
+			int coord2 = Integer.parseInt(splitString[1]) - 1;
+			int value = Integer.parseInt(splitString[2]);
+			
+			if (this.grid.isValidDancingCell(coord1, coord2, value)) {
+				//place it
+				this.grid.setCoord(value, coord1, coord2);
+			} else {
+				result = false;
+				break;
+			}
+		}
+		
+		//Clear the grid.
+		this.grid.clearGrid();
+
+		return result;
 	}
 	
 	/*

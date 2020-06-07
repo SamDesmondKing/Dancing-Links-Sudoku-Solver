@@ -167,7 +167,8 @@ public class KillerSudokuGrid extends SudokuGrid {
 	
 	public boolean isValidCell(int coord1, int coord2, int newValue) {
 		
-		/*This method differs from that in stdSudoku because we can't just run validate()
+		/*
+		 * This method differs from that in stdSudoku because we can't just run validate()
 		 * as it will consider unfilled cages as invalid. We must seperately validate boxes,
 		 * rows and columns and then validate only cages which have been filled completely.
 		*/
@@ -231,9 +232,7 @@ public class KillerSudokuGrid extends SudokuGrid {
 			}		
 			
 			//If the cage is full, validate it.
-			//System.out.println(fullCage);
 			if (fullCage == true) {
-				//System.out.println(fullCage);
 				if (cageRunningTotal != cageValue) {
 					cellValidity = false;
 				}
@@ -242,6 +241,71 @@ public class KillerSudokuGrid extends SudokuGrid {
 		
 		//Reset cell to original value and return result. 
 		if (cellValidity && this.validity) {
+			this.setCoord(currentValue, coord1, coord2);
+			return true;
+		} else {
+			this.setCoord(currentValue, coord1, coord2);
+			return false;
+		}
+	}
+	
+	public boolean isValidDancingCell(int coord1, int coord2, int newValue) {
+		
+		/*
+		 * Unique killer dancing-links validation method that
+		 * omits row/column/box validations and only checks that
+		 * complete cages are correct. Row/column/box validity is 
+		 * unnecessary because the DLX / Alg X implimentation 
+		 * handles that already.
+		*/
+		
+		int cageValue;
+		int cageSize;
+		int[] cageBoxCoord = new int[2];
+		int index = 0;
+		boolean fullCage;
+		
+		//Local validity used for our specific cage checks.
+		boolean cellValidity = true;
+
+		//Save current value
+		int currentValue = this.getCoord(coord1, coord2);
+		//Place new value
+		this.setCoord(newValue, coord1, coord2);
+		
+		//Check all completely filled cages
+		for (ArrayList<Integer> cage : cages.keySet()) {		
+			cageValue = cages.get(cage);
+			cageSize = cage.size() / 2;
+			fullCage = true;
+			int cageRunningTotal = 0;
+			index = 0;
+		
+			//Cycle each individual cage box;
+			//Also save running total value for validation.
+			for (int i = 0; i < cageSize; i++) {
+				cageBoxCoord[0] = cage.get(index);
+				index ++;
+				cageBoxCoord[1] = cage.get(index);
+				index ++;			
+				cageRunningTotal += this.grid[cageBoxCoord[0]][cageBoxCoord[1]];
+				
+				//If the value at any of the cage's co-ordinates is 0, the cage is not full.
+				if (this.grid[cageBoxCoord[0]][cageBoxCoord[1]] == 0) {
+					fullCage = false;
+				}
+			}		
+			
+			//If the cage is full, validate it.
+			if (fullCage == true) {
+				if (cageRunningTotal != cageValue) {
+					cellValidity = false;
+				}
+			}
+		}
+		
+		//Reset cell to original value and return result. 
+		if (cellValidity) {
 			this.setCoord(currentValue, coord1, coord2);
 			return true;
 		} else {
@@ -365,6 +429,14 @@ public class KillerSudokuGrid extends SudokuGrid {
 		return cageValidity;
 	}
 
+	public void clearGrid() {
+		for (int i = 0; i < this.gridSize; i++) {
+			for (int j = 0; j < this.gridSize; j++) {
+				this.grid[i][j] = 0;
+			}
+		}
+	}
+	
 	public void setCoord(int value, int coord1, int coord2) {
 		this.grid[coord1][coord2] = value;
 	}

@@ -63,6 +63,10 @@ public class HeaderNode extends Node {
 	public void setSize(int size) {
 		this.size = size;
 	}
+	
+	public int getSize() {
+		return this.size;
+	}
 
 	public String getLabel() {
 		return this.label;
