@@ -117,7 +117,6 @@ public class AlgorXSolver extends StdSudokuSolver {
 
 		if (matrixIndex == -1) {
 			this.binaryMatrix = matrix;
-			System.out.println("hi");
 			return;
 		} else {
 

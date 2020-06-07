@@ -40,8 +40,7 @@ public class KillerAdvancedSolver extends StdSudokuSolver {
 		HeaderNode masterNode = dancingLinks.getMasterNode();
 		
 		// Invoke algX on dancing links structure.
-		ArrayList<String> solution = new ArrayList<String>();
-		this.algX(masterNode, solution);
+		this.algX(masterNode);
 
 		return this.solutionFound;
 	} // end of solve()
@@ -49,10 +48,10 @@ public class KillerAdvancedSolver extends StdSudokuSolver {
 	/*
 	 * Algorithm X for Killer DLX.
 	 */
-	public void algX(HeaderNode masterNode, ArrayList<String> solution) {
+	public void algX(HeaderNode masterNode) {
 		if (masterNode.getRight().equals(masterNode)) {
 			if (!this.solutionFound) {
-				this.solutionFound(solution);
+				this.solutionFound = true;
 			}
 		} else {
 			//Choose a column c (deterministically).
@@ -62,16 +61,19 @@ public class KillerAdvancedSolver extends StdSudokuSolver {
 			Node colNode = columnChoice.getDown();
 			while (colNode != columnChoice) {
 				// Choose a row r such that A[r] = 1 (nondeterministically).
-				// Include row r in the partial solution.
+				String[] splitString = colNode.getValue().split(",");
+				int coord1 = Integer.parseInt(splitString[0]) - 1;
+				int coord2 = Integer.parseInt(splitString[1]) - 1;
+				int value = Integer.parseInt(splitString[2]);
 				
-				//Validate solution
-				solution.add(colNode.getValue());
-				if (!this.checkSolution(solution)) {
-					//Try different value if this one won't work.
-					solution.remove(solution.size() - 1);
+				if (this.grid.isValidDancingCell(coord1, coord2, value)) {
+					// Include row r in the partial solution.
+					this.grid.setCoord(value, coord1, coord2);
+				} else {
+					//If invalid, break and try another value.
 					colNode = colNode.getDown();
 					continue;
-				} 
+				}
 				
 				// For each column j such that A[r][j] = 1,
 				Node rowNode = colNode.getRight();
@@ -81,11 +83,12 @@ public class KillerAdvancedSolver extends StdSudokuSolver {
 					rowNode = rowNode.getRight();
 				}
 				//Reccur
-				algX(masterNode, solution);
+				algX(masterNode);
 				if (this.solutionFound == true) {
 					break;
 				} else {
-					solution.remove(solution.size() - 1);
+					//Reset cell value
+					this.grid.setCoord(0, coord1, coord2);
 					columnChoice = colNode.getHead();
 			
 					//Uncover
@@ -123,52 +126,5 @@ public class KillerAdvancedSolver extends StdSudokuSolver {
 		}
 		return choice;
 	}
-	
-	/*
-	 * Checks solution to ensure complete cages are correct
-	 */
-	public boolean checkSolution(ArrayList<String> solution) {
-		
-		//isValidCell(int coord1, int coord2, int newValue) 
-		boolean result = true;
-		
-		//Fill the grid
-		for (String i : solution) {
-			String[] splitString = i.split(",");
-			int coord1 = Integer.parseInt(splitString[0]) - 1;
-			int coord2 = Integer.parseInt(splitString[1]) - 1;
-			int value = Integer.parseInt(splitString[2]);
-			
-			if (this.grid.isValidDancingCell(coord1, coord2, value)) {
-				//place it
-				this.grid.setCoord(value, coord1, coord2);
-			} else {
-				result = false;
-				break;
-			}
-		}
-		
-		//Clear the grid.
-		this.grid.clearGrid();
-
-		return result;
-	}
-	
-	/*
-	 * Called when alg X finds a solution.
-	 * Allows us to break out of recursion early. 
-	 */
-	public void solutionFound(ArrayList<String> solution) {
-		this.solutionFound = true;
-		for (String i : solution) {
-			String[] cell = i.split(",");
-			// Method takes order value, Row, Column.
-			int value = Integer.parseInt(cell[2]);
-			int row = Integer.parseInt(cell[0]) - 1;
-			int column = Integer.parseInt(cell[1]) - 1;
-			this.grid.setCoord(value, row, column);
-		}
-	}
-
 } // end of class DancingLinksSolver
 

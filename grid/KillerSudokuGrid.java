@@ -235,6 +235,7 @@ public class KillerSudokuGrid extends SudokuGrid {
 			if (fullCage == true) {
 				if (cageRunningTotal != cageValue) {
 					cellValidity = false;
+					break;
 				}
 			}
 		}
@@ -300,6 +301,7 @@ public class KillerSudokuGrid extends SudokuGrid {
 			if (fullCage == true) {
 				if (cageRunningTotal != cageValue) {
 					cellValidity = false;
+					break;
 				}
 			}
 		}
@@ -429,14 +431,6 @@ public class KillerSudokuGrid extends SudokuGrid {
 		return cageValidity;
 	}
 
-	public void clearGrid() {
-		for (int i = 0; i < this.gridSize; i++) {
-			for (int j = 0; j < this.gridSize; j++) {
-				this.grid[i][j] = 0;
-			}
-		}
-	}
-	
 	public void setCoord(int value, int coord1, int coord2) {
 		this.grid[coord1][coord2] = value;
 	}
