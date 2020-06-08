@@ -12,10 +12,6 @@ import dancingLinks.Node;
 import grid.StdSudokuGrid;
 import grid.SudokuGrid;
 
-//TODO Note: this implementation will allow us to keep track of the 
-//number of nodes in each column, and select the one with the least nodes,
-//unlike the BCM solver which chose the first column each time. 
-
 /**
  * Dancing links solver for standard Sudoku.
  */

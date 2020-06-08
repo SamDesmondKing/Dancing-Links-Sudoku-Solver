@@ -268,9 +268,7 @@ public class KillerSudokuGrid extends SudokuGrid {
 		
 		//Local validity used for our specific cage checks.
 		boolean cellValidity = true;
-
-		//Save current value
-		int currentValue = this.getCoord(coord1, coord2);
+		
 		//Place new value
 		this.setCoord(newValue, coord1, coord2);
 		
@@ -308,12 +306,13 @@ public class KillerSudokuGrid extends SudokuGrid {
 		
 		//Reset cell to original value and return result. 
 		if (cellValidity) {
-			this.setCoord(currentValue, coord1, coord2);
+			this.setCoord(0, coord1, coord2);
 			return true;
 		} else {
-			this.setCoord(currentValue, coord1, coord2);
+			this.setCoord(0, coord1, coord2);
 			return false;
 		}
+		
 	}
 
 	//Recursively validate that all boxes in grid fit sudoku constraints. 
