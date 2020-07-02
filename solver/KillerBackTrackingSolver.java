@@ -25,7 +25,7 @@ public class KillerBackTrackingSolver extends KillerSudokuSolver
 	@Override
 	public boolean solve(SudokuGrid grid) {
 
-		// Convert grid to KillerGrid as this class only ever solves Std grids.
+		// Convert grid to KillerGrid as this class only ever solves Killer grids.
 		this.grid = (KillerSudokuGrid) grid;
 		this.gridSize = this.grid.getGridSize();
 		this.values = this.grid.getValues();
@@ -35,14 +35,13 @@ public class KillerBackTrackingSolver extends KillerSudokuSolver
 		return result;
 	} // end of solve()
 
+	/*
+	 * Solution is exactly the same as that used for solving  
+	 * standard sudoku - only difference is in the validation
+	 * methods used in the KillerSudokuGrid class - which are 
+	 * called here by this.grid.isValidCell().
+	 */
 	public boolean recursiveSolver() {
-		
-		/*
-		 * Solution is exactly the same as that used for solving  
-		 * standard sudoku - only difference is in the validation
-		 * methods used in the KillerSudokuGrid class - which are 
-		 * called here by this.grid.isValidCell().
-		 */
 		
 		// For each row
 		for (int i = 0; i < this.gridSize; i++) {

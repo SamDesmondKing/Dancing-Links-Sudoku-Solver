@@ -134,6 +134,9 @@ public class KillerSudokuGrid extends SudokuGrid {
 		return returnString;
 	} // end of toString()
 
+	/*
+	 * Validate grid. 
+	 */
 	@Override
 	public boolean validate() {
 		
@@ -165,13 +168,14 @@ public class KillerSudokuGrid extends SudokuGrid {
 		return this.validity;
 	} // end of validate()
 	
+	/*
+	 * Validate that a given value would be correct at that cell. 
+	 * This method differs from that in stdSudoku because we can't just run validate()
+	 * as it will consider unfilled cages as invalid. We must seperately validate boxes,
+	 * rows and columns and then validate only cages which have been filled completely.
+	*/
+	
 	public boolean isValidCell(int coord1, int coord2, int newValue) {
-		
-		/*
-		 * This method differs from that in stdSudoku because we can't just run validate()
-		 * as it will consider unfilled cages as invalid. We must seperately validate boxes,
-		 * rows and columns and then validate only cages which have been filled completely.
-		*/
 		
 		int cageValue;
 		int cageSize;
@@ -250,15 +254,15 @@ public class KillerSudokuGrid extends SudokuGrid {
 		}
 	}
 	
+	/*
+	 * Unique killer dancing-links validation method that
+	 * omits row/column/box validations and only checks that
+	 * complete cages are correct. Row/column/box validity is 
+	 * unnecessary because the DLX / Alg X implimentation 
+	 * handles that already.
+	*/
+	
 	public boolean isValidDancingCell(int coord1, int coord2, int newValue) {
-		
-		/*
-		 * Unique killer dancing-links validation method that
-		 * omits row/column/box validations and only checks that
-		 * complete cages are correct. Row/column/box validity is 
-		 * unnecessary because the DLX / Alg X implimentation 
-		 * handles that already.
-		*/
 		
 		int cageValue;
 		int cageSize;
@@ -315,7 +319,9 @@ public class KillerSudokuGrid extends SudokuGrid {
 		
 	}
 
-	//Recursively validate that all boxes in grid fit sudoku constraints. 
+	/*
+	 * Recursively validate that all boxes in grid fit sudoku constraints. 
+	 */
 	public void validateBoxes(int coord1, int coord2, int boxWidth) {
 
 		int numBoxes = boxWidth * boxWidth;
@@ -347,7 +353,9 @@ public class KillerSudokuGrid extends SudokuGrid {
 		}
 	}
 
-	// Determine if a set of ints is valid (no duplicates)
+	/* 
+	 * Determine if a set of ints is valid (no duplicates)
+	 */
 	public void validateSet(Integer[] row) {
 
 		// Convert row to Arraylist - exclude '0' value
@@ -366,7 +374,9 @@ public class KillerSudokuGrid extends SudokuGrid {
 		}
 	}
 	
-	//Validate that all cages in this grid's hashmap are correct. 
+	/*
+	 * Validate that all cages in this grid's hashmap are correct. 
+	 */
 	public void validateCages() {
 		int cageValue;
 		int cageRunningTotal;
@@ -403,7 +413,9 @@ public class KillerSudokuGrid extends SudokuGrid {
 		}
 	}
 	
-	//Validate that a single given cage is correct
+	/* 
+	 * Validate that a single given cage is correct
+	 */
 	public boolean validateSingleCage(ArrayList<Integer> cage) {
 		
 		boolean cageValidity = true;
@@ -430,6 +442,8 @@ public class KillerSudokuGrid extends SudokuGrid {
 		return cageValidity;
 	}
 
+	/* --- Getters & Setters --- */
+	
 	public void setCoord(int value, int coord1, int coord2) {
 		this.grid[coord1][coord2] = value;
 	}

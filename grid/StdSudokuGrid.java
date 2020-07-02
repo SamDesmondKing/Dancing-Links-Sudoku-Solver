@@ -118,12 +118,12 @@ public class StdSudokuGrid extends SudokuGrid {
 		}
 		return returnString;
 	} // end of toString()
-
-	public boolean isValidCell(int coord1, int coord2, int value) {
-		
-		//Check if a given value would be valid if placed at a given co-ordinate
-		//Does not actually change the state of the grid. 
 	
+	/*
+	 * Check if a given value would be valid if placed at a given co-ordinate
+	 * Does not actually change the state of the grid. 
+	 */
+	public boolean isValidCell(int coord1, int coord2, int value) {
 		int currentValue = this.getCoord(coord1, coord2);
 		this.setCoord(value, coord1, coord2);
 		
@@ -138,7 +138,6 @@ public class StdSudokuGrid extends SudokuGrid {
 
 	@Override
 	public boolean validate() {
-
 		this.validity = true;
 		
 		// Get expected row and box sizes.
@@ -197,10 +196,10 @@ public class StdSudokuGrid extends SudokuGrid {
 		}
 	}
 
-	public void validateSet(Integer[] row) {
-	
-		//Determine if a set of ints is valid (no duplicates)
-		
+	/*
+	 * Determine if a set of ints is valid (no duplicates)
+	 */
+	public void validateSet(Integer[] row) {		
 		//Convert row to Arraylist - exclude '0' value
 		ArrayList<Integer> rowList = new ArrayList<Integer>();
 		for (int i = 0; i < row.length; i++) {
@@ -216,7 +215,10 @@ public class StdSudokuGrid extends SudokuGrid {
 			this.validity = false;
 		}
 	}
-	
+
+	/*
+	 *  --- Getters & Setters ---
+	 */
 	public void setCoord(int value, int coord1, int coord2) {
 		this.grid[coord1][coord2] = value;
 	}
