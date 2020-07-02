@@ -1,9 +1,9 @@
-#Sudoku Solver
+# Sudoku Solver
 
 Command-line program which demonstrates a variety of solutions to solving both regular and 'killer' sudoku puzzles.
 Program will take a sudoku grid as an input file and either print or output the solved puzzle to a file of your choice.
 
-##Key Files
+## Key Files
 
 Three solving methods are available for regular sudoku:
 - Backtracking (solver/BackTrackingSolver.java)
