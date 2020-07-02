@@ -6,7 +6,7 @@ Program will take a sudoku grid as an input file and either print or output the 
 ## Key Files
 
 Three solving methods are available for regular sudoku:
-- Backtracking (solver/BackTrackingSolver.java)
+- [Backtracking](solver/BackTrackingSolver.java)
 - Knuth's Algorithm X (solver/AlgorXSolver.java)
 - Knuth's Dancing Links (solver/DancingLinksSolver.java)
 
