@@ -7,12 +7,12 @@ Program will take a sudoku grid as an input file and either print or output the 
 
 Three solving methods are available for regular sudoku:
 - [Backtracking](solver/BackTrackingSolver.java)
-- Knuth's Algorithm X (solver/AlgorXSolver.java)
-- Knuth's Dancing Links (solver/DancingLinksSolver.java)
+- [Knuth's Algorithm X](solver/AlgorXSolver.java)
+- [Knuth's Dancing Links](solver/DancingLinksSolver.java)
 
 Two solvers are available for 'killer' sudoku puzzles:
-- Backtracking (solver/KillerBackTrackingSolver.java)
-- Dancing Links (solver/KillerAdvancedSolver.java)
+- [Backtracking](solver/KillerBackTrackingSolver.java)
+- [Dancing Links](solver/KillerAdvancedSolver.java)
 
 Dancing Links data structure can be found in the /dancingLinks 
 directory.
